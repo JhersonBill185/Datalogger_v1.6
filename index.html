@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Panel de Control</title>
+	<link rel="icon" type="image/jpg" href="imgs/logo.jpg">
+	<script src="files/infoeeprom.js"></script>
+	<style>
+		body { font-family: Arial; background: rgb(242,242,242); margin: 0; }
+		a { text-decoration: none; color: black; }
+		table { border-collapse: collapse; }
+		td:hover {background-color: #ddd;}
+		th { background: #bbb; }
+		td, th {
+			border: 1px solid #000;
+			padding: 10px;
+			font-size: 14px;
+			width: 100px;
+			height: 25px;
+			text-align: center;
+		}
+		.modal {
+			display: none;
+			position: fixed;
+			z-index: 1;
+			padding-top: 50px;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			overflow: auto;
+			background-color: rgb(0,0,0);
+			background-color: rgba(0,0,0,0.4);
+		}
+		.modal-content {
+			position: relative;
+			background-color: #fefefe;
+			margin: auto;
+			padding: 25px;
+			padding-bottom: 35px;
+			border: 1px solid #888;
+			width: 50%;
+			box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+			-webkit-animation-name: animatetop;
+			-webkit-animation-duration: 0.4s;
+			animation-name: animatetop;
+			animation-duration: 0.4s;
+		}
+		@-webkit-keyframes animatetop {
+			from {top:-300px; opacity:0} 
+			to {top:0; opacity:1}
+		}
+		@keyframes animatetop {
+			from {top:-300px; opacity:0}
+			to {top:0; opacity:1}
+		}
+		.close {
+			color: black;
+			float: right;
+			font-size: 28px;
+			font-weight: bold;
+		}
+		.close:hover,
+		.close:focus {
+			color: #000;
+			text-decoration: none;
+			cursor: pointer;
+		}
+		.bbtt {
+			background-color: #4CAF50;
+			border: none;
+			color: white;
+			padding: 15px 32px;
+			text-align: center;
+			text-decoration: none;
+			display: inline-block;
+			font-size: 16px;
+			margin: 4px 2px;
+			cursor: pointer;
+		}
+	</style>
+</head>
+<body>
+	<header style="background: #c00039;"> <img src="imgs/logo.jpg" width="25" height="25" style="margin: 4px;"></header>
+	<p align="center" id="idtitulo" style="color: #888888; font-size:20px; margin-bottom: 0px; margin-top: 10px;">Panel de Control</p>
+	<hr style="border: 0.8px solid #c00039;"/>
+	<h3 align="center">Bienvenido</h3>
+	<table align="center">
+		<tr>
+			<th></th>
+			<th>Slot 0</th>
+			<th>Slot 1</th>
+			<th>Slot 2</th>
+			<th>Slot 3</th>
+			<th>Slot 4</th>
+			<th>Slot 5</th>
+			<th>Slot 6</th>
+			<th>Slot 7</th>
+		</tr>
+		<tr>
+			<td style="font-weight:bold;">Datalogger</td>
+			<td id="iddatalogger0" onclick="dispData(0);"></td>
+			<td id="iddatalogger1" onclick="dispData(1);"></td>
+			<td id="iddatalogger2" onclick="dispData(2);"></td>
+			<td id="iddatalogger3" onclick="dispData(3);"></td>
+			<td id="iddatalogger4" onclick="dispData(4);"></td>
+			<td id="iddatalogger5" onclick="dispData(5);"></td>
+			<td id="iddatalogger6" onclick="dispData(6);"></td>
+			<td id="iddatalogger7" onclick="dispData(7);"></td>
+		</tr>
+		<tr>
+			<td style="font-weight:bold;">Monitoreo</td>
+			<td id="idmonitorear0" onclick="dispMoni(0);"></td>
+			<td id="idmonitorear1" onclick="dispMoni(1);"></td>
+			<td id="idmonitorear2" onclick="dispMoni(2);"></td>
+			<td id="idmonitorear3" onclick="dispMoni(3);"></td>
+			<td id="idmonitorear4" onclick="dispMoni(4);"></td>
+			<td id="idmonitorear5" onclick="dispMoni(5);"></td>
+			<td id="idmonitorear6" onclick="dispMoni(6);"></td>
+			<td id="idmonitorear7" onclick="dispMoni(7);"></td>
+		</tr>
+	</table>
+
+
+	<div id="myModal" class="modal">
+		<div class="modal-content">
+			<span class="close">&times;</span>
+			<h3 id="idhead" align="center"></h3>
+			<div class="modal-body" align="center">
+				<form id="formulario" action="">
+					Desde:
+					<input id="mifi" type="date" name="fechainicio" value="2019-01-01" required>
+					<br><br>
+					Hasta:
+					<input id="miff" type="date" name="fechafin" value="2019-01-02" required>
+					<br><br>
+					<input id="idslot" name="slot" type="hidden" value="">
+					<input id="idequipo" name="equipo" type="hidden" value="">
+					<input id="submit" type="submit" value="Ver">
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<div id="myModal1" class="modal">
+		<div class="modal-content">
+			<span class="close">&times;</span>
+			<h3 id="idhead2" align="center"></h3>
+			<div id="botonear" class="modal-body" align="center">
+			</div>
+		</div>
+	</div>
+
+	<script>
+		var modal = document.getElementById("myModal");
+		var modal1 = document.getElementById("myModal1");
+		var span = document.getElementsByClassName("close")[0];
+		var span1 = document.getElementsByClassName("close")[1];
+		
+		span.onclick = function() { modal.style.display = "none"; }
+		span1.onclick = function() { modal1.style.display = "none"; }
+		window.onclick = function(event) {
+			if (event.target == modal || event.target == modal1) {
+				modal.style.display = "none"; modal1.style.display = "none";
+			}
+		}
+
+		function dispData(slot) {
+			var device = eeiiEqui[slot];
+			if (device) {
+				modal.style.display = "block";
+				idslot.value = slot;
+				idequipo.value = device;
+				idhead.innerHTML = equipos[device];
+				formulario.action = linksData[device];
+			}
+		}
+		function dispMoni(slot) {
+			var device = eeiiEqui[slot];
+			if (moniNombres[device].length == 1) {
+				window.location.href = monniLL[device]+"?slot="+slot;
+			}
+			else {
+				modal1.style.display = "block";
+				document.getElementById("botonear").innerHTML = "";
+				for (var i=0; i<moniNombres[device].length; i++) {
+					document.getElementById("botonear").innerHTML += "<button class='bbtt' onclick='myFunction("+slot+","+i+")'>"+moniNombres[device][i]+"</button><br>";
+				}
+			}
+
+		}
+		function myFunction(slot, i) {
+			window.location.href = monniLL[eeiiEqui[slot]][i]+"?slot="+slot;
+		}
+
+		const equipos = [
+			"--",
+			"Circutor<br>CVM-A1500",
+			"Circutor<br>CVM-C10",
+			"Orion<br>TR-42",
+			"ABB<br>REF 601",
+			"--",
+			"--",
+			"--",
+			"--"
+		];
+		const linksData = [
+			"/",
+			"equipos/a1500.html",
+			"equipos/c10.html",
+			"equipos/tr42.html",
+			"equipos/ref601.html",
+			"/",
+			"/",
+			"/",
+			"/"
+		];
+		// const linksData2 = [
+		// 	"/",
+		// 	"equipos/a1500_m.html",
+		// 	"equipos/c10_m.html",
+		// 	"equipos/tr42_m.html",
+		// 	"equipos/ref601_m.html",
+		// 	"/",
+		// 	"/",
+		// 	"/",
+		// 	"/"
+		// ];
+		const linksImg = [
+			"",
+			"imgs/a1500.png",
+			"imgs/c10.png",
+			"imgs/tr42.png",
+			"imgs/ref601.png",
+			"/",
+			"/",
+			"/",
+			"/"
+		];
+		const moniNombres = [
+			[],
+			["Variable de Medida", "Variable de Potencia Y Armónicos"],
+			["Variable de Medida", "Variable de Potencia Y Armónicos"],
+			["Temperatura"],
+			["Corriente"]
+		];
+		const monniLL = [
+			["/"],
+			["equipos/a1500_m.html", "equipos/a1500_n.html"],
+			["equipos/c10_m.html", "equipos/c10_n.html"],
+			["equipos/tr42_m.html"],
+			["equipos/ref601_m.html"],
+		];
+		for (var i=0; i<8; i++) {
+			document.getElementById("iddatalogger"+i).innerHTML = equipos[eeiiEqui[i]] + "<img src='"+linksImg[eeiiEqui[i]]+"'/>";
+			document.getElementById("idmonitorear"+i).innerHTML = eeiiEqui[i] ? "<img src='imgs/realtime.png'/>" : "--";
+		}
+	</script>
+
+</body>
+</html>
